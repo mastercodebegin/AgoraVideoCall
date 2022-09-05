@@ -4,6 +4,15 @@ import {Platform, ScrollView, Text, TouchableOpacity, View, PermissionsAndroid, 
 import RtcEngine, {RtcLocalView, RtcRemoteView, VideoRenderMode} from 'react-native-agora'
 // Import the UI styles.
 import styles from '../Faltu/Style'
+import { agoraAcquire, agoraGetQuery, agoraStopVideo, agoraVideoStartRecording } from "./agora-Apis";
+
+const appId = "86ae8b0dac6346b6929241a5931107c2";
+const channelName = 'Video';
+const token = '00612a7d67b803b4e7f96ec1355192490a3IACnf+/qALdmTwHz+yycY9OACaZRC5kAUcoHxnkL6s+CwsN2C/EAAAAAEAAorRuJ9jxqYgEAAQD1PGpi'
+const headers = {
+  'Content-Type': 'application/json',
+  Authorization:'Basic YzMwNTEwYzg4Yjc0NGJmNmI5ZTQyN2UwZTlmMmZhOTA6ZjhkMTM2NGUzMmI5NDc5YzhlMWRmOTMzOGJiNDdlMmQ='
+}
 
 interface Props {
    
@@ -16,9 +25,10 @@ interface State {
     token: string,
     joinSucceed: boolean,
     peerIds: number[],
+
 }
 
-
+var testTump = 1;  
 const requestCameraAndAudioPermission = async () =>{
   try {
       const granted = await PermissionsAndroid.requestMultiple([
@@ -106,7 +116,48 @@ init = async () => {
 
 startCall = async () => {
   await this._engine?.joinChannel(this.state.token, this.state.channelName, null, 0)
+  setTimeout(() => {
+  
+    this.agoraSavedvideoApi()
+  }, 3000);
 }
+
+agoraSavedvideoApi = async () => {
+    let uid = this.state.peerIds.length > 0 && this.state.peerIds[0]
+    console.log('start-video ID', uid);
+    
+    console.log('start-video ID2', this.state.peerIds[0]);
+    //"calling  agoraAcquire For resourceId"
+    const responce = await agoraAcquire(uid)
+    if (responce) {
+      console.log('resourceId-------------', responce)
+      this.agoraStartVideoRecordingApi(responce)
+
+    }
+  }
+
+  agoraStartVideoRecordingApi = async (responce: any) => { 
+    testTump =  testTump + 1;
+    let uid = this.state.peerIds.length > 0 && this.state.peerIds[0]
+    const responce1 = await agoraVideoStartRecording(responce.resourceId, uid, testTump)
+    if (responce1) {
+      console.log(responce1, "start-video")
+      const responce2 = await agoraGetQuery(responce1.resourceId, responce1.sid)
+      if (responce2) {
+        console.log(responce2, "query-data")
+      }
+      //this.setState({ resourceId: responce1.resourceId, startingId: responce1.sid })
+    }
+  }
+
+//   agoraStopvideoApi = async () => {
+//     let uid = this.state.peerIds.length > 0 && this.state.peerIds[0]
+//     const responce = await agoraStopVideo(this.state.resourceId, uid, this.state.startingId)
+//     if (responce) {
+//       console.log(responce, "stop-video")
+//     }
+//   }
+
 render() {
   return (
       <View style={styles.max}>
@@ -167,5 +218,6 @@ endCall = async () => {
   await this._engine?.leaveChannel()
   this.setState({peerIds: [], joinSucceed: false})
 }
+
 
 }

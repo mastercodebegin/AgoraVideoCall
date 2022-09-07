@@ -1,28 +1,28 @@
 const appId = "86ae8b0dac6346b6929241a5931107c2";
 const channelName = 'test';
-const token = '00612a7d67b803b4e7f96ec1355192490a3IACnf+/qALdmTwHz+yycY9OACaZRC5kAUcoHxnkL6s+CwsN2C/EAAAAAEAAorRuJ9jxqYgEAAQD1PGpi'
+const apiToken="NDQ0ODQzY2FlYTQxNDliYThjMzJhMjA3NmFkMTMzYmY6ODQwY2E0NTk5MDU5NDNhNTgxNTllMjFmNzRiZjM1ZWI="
+
+// const token = '00612a7d67b803b4e7f96ec1355192490a3IACnf+/qALdmTwHz+yycY9OACaZRC5kAUcoHxnkL6s+CwsN2C/EAAAAAEAAorRuJ9jxqYgEAAQD1PGpi'
 const headers = {
   'Content-Type': 'application/json',
-  Authorization:'Basic YTFhNDlmMDU0MzZlNDlkNThkOWFmZGY4NmQ0Y2E4MGMgKyAiOiIgKyBhYWFlY2M4MmI2MDM0NDUyYjZkZDQwMjIxZDViNTZhNQ=='
+  Authorization:'Basic'+ apiToken
 //   Authorization:'Basic YzMwNTEwYzg4Yjc0NGJmNmI5ZTQyN2UwZTlmMmZhOTA6ZjhkMTM2NGUzMmI5NDc5YzhlMWRmOTMzOGJiNDdlMmQ='
 }
 
 export async function agoraAcquire(uid:any) {
  
   const url = `https://api.agora.io/v1/apps/${appId}/cloud_recording/acquire`;
-  console.log('agoraAcquire',url)
   console.log('UIDDD', uid)
 
   const body = {
-    "cname": channelName,
+    "cname": 'test',
     "uid": uid.toString(),
     "clientRequest":{
-
+      "region": "CN",
         "resourceExpiredHour": 24,
-        "scene": 0
     }
   }
-  console.log('snehil', JSON.stringify(body))
+  
   let response = await  fetch(url,{
     method:'POST',
     headers: headers,

@@ -1,19 +1,21 @@
 import React, { Component } from 'react'
 import { Platform, ScrollView, Text, TouchableOpacity, View, PermissionsAndroid, Alert } from 'react-native'
 // Import the RtcEngine class and view rendering components into your project.
-import RtcEngine, { RtcLocalView, RtcRemoteView, VideoRenderMode } from 'react-native-agora'
+import RtcEngine, { RtcLocalView, RtcRemoteView, ScreenVideoParameters, VideoRenderMode } from 'react-native-agora'
 // Import the UI styles.
 import styles from './Style'
-import { agoraAcquire, agoraGetQuery, agoraStopVideo, agoraVideoStartRecording } from "./agora-Apis";
+import { agoraAcquire, agoraGetQuery, agoraStopVideoApi, agoraVideoStartRecording } from "./agora-Apis";
+import { Calendar, CalendarList } from 'react-native-calendars';
+import moment from 'moment';
 
-const appId = "86ae8b0dac6346b6929241a5931107c2";
+// const appId = "86ae8b0dac6346b6929241a5931107c20";
 const channelName = 'Video';
 const token = '00612a7d67b803b4e7f96ec1355192490a3IACnf+/qALdmTwHz+yycY9OACaZRC5kAUcoHxnkL6s+CwsN2C/EAAAAAEAAorRuJ9jxqYgEAAQD1PGpi'
 const headers = {
     'Content-Type': 'application/json',
     Authorization: 'Basic YzMwNTEwYzg4Yjc0NGJmNmI5ZTQyN2UwZTlmMmZhOTA6ZjhkMTM2NGUzMmI5NDc5YzhlMWRmOTMzOGJiNDdlMmQ='
 }
-
+const tempToken = "007eJxTYNji0SXfcvCLQ/CGST/SRQVrfKa/+GJ0con9BtvXcUk3hH4oMFiYJaZaJBmkJCabGZuYJZlZGlkamRgmmloaGxoamCcbMUfkJTcEMjI84qljZGSAQBCfhaEktbiEgQEAeRsfPQ=="
 interface Props {
 
 }
@@ -25,6 +27,10 @@ interface State {
     token: string,
     joinSucceed: boolean,
     peerIds: number[],
+    resourceId: any,
+    startingId: any,
+    selectedDate:any,
+    markedDates:any
 
 }
 
@@ -62,6 +68,12 @@ export default class App extends Component<Props, State> {
             token: '86ae8b0dac6346b6929241a5931107c2',
             joinSucceed: false,
             peerIds: [],
+            resourceId: '',
+            startingId: '',
+            
+                selectedDate: "",
+                markedDates: {}
+            
         }
         if (Platform.OS === 'android') {
             requestCameraAndAudioPermission().then(() => {
@@ -112,68 +124,88 @@ export default class App extends Component<Props, State> {
             this.setState({
                 joinSucceed: true
             })
-            const data = async () => {
 
-                const responce = await agoraAcquire(uid)
-                if (responce) {
-                    console.log('resourceId-------------', responce)
-                    //   this.agoraStartVideoRecordingApi(responce)
+            // const responce = await agoraAcquire(uid)
+            // if (responce) {
+            //     console.log('resourceId-------------', responce)
+            //       this.agoraStartVideoRecordingApi(responce)
 
-                }
-            }
-            data();
+            // }
+
         })
     }
 
     startCall = async () => {
-        await this._engine?.joinChannel(null, this.state.channelName, null, 0)
-        setTimeout(() => {
 
+        await this._engine?.joinChannel(tempToken, this.state.channelName, null, 0)
+        setTimeout(() => {
+            this._engine?.startScreenCapture({ videoParams: { bitrate: 200, frameRate: 100 } })
             // this.agoraSavedvideoApi()
         }, 3000);
     }
 
     agoraSavedvideoApi = async () => {
         let uid = this.state.peerIds.length > 0 && this.state.peerIds[0]
-        console.log('start-video ID', uid);
-        console.log('peerIds--', this.state.peerIds);
+
+        console.log('start-video ID------------------------', uid);
+        console.log('peerIds------------------------', this.state.peerIds);
 
         console.log('start-video ID2', this.state.peerIds[0]);
         //"calling  agoraAcquire For resourceId"
-        const responce = await agoraAcquire(uid)
-        if (responce) {
-            console.log('resourceId-------------', responce)
-            //   this.agoraStartVideoRecordingApi(responce)
+        const resourceId = await agoraAcquire(uid)
+        if (resourceId) {
+            console.log('Aquire resourceId-------------', resourceId)
+            this.agoraStartVideoRecordingApi(resourceId)
 
         }
     }
 
-    agoraStartVideoRecordingApi = async (responce: any) => {
-        testTump = testTump + 1;
+    agoraStartVideoRecordingApi = async (resourceId: any) => {
         let uid = this.state.peerIds.length > 0 && this.state.peerIds[0]
-        const responce1 = await agoraVideoStartRecording(responce.resourceId, uid, testTump)
-        if (responce1) {
-            console.log(responce1, "start-video")
-            const responce2 = await agoraGetQuery(responce1.resourceId, responce1.sid)
+        console.log('agoraStartVideoRecordingApi peerIds----------', uid);
+
+        const responseStartVideo = await agoraVideoStartRecording(resourceId.resourceId, uid,)
+        if (responseStartVideo) {
+            console.log('agoraVideoStartRecording-----------------------', responseStartVideo,)
+            const responce2 = await agoraGetQuery(responseStartVideo.resourceId, responseStartVideo.sid)
             if (responce2) {
-                console.log(responce2, "query-data")
+                console.log("query-data Recording status--------------", responce2)
             }
-            //this.setState({ resourceId: responce1.resourceId, startingId: responce1.sid })
+            this.setState({ resourceId: responseStartVideo.resourceId, startingId: responseStartVideo.sid })
         }
     }
 
-    //   agoraStopvideoApi = async () => {
-    //     let uid = this.state.peerIds.length > 0 && this.state.peerIds[0]
-    //     const responce = await agoraStopVideo(this.state.resourceId, uid, this.state.startingId)
-    //     if (responce) {
-    //       console.log(responce, "stop-video")
-    //     }
-    //   }
+    agoraStopVideo = async () => {
+        let uid = this.state.peerIds.length > 0 && this.state.peerIds[0]
+        console.log('agoraStopvideoApi------------', uid);
+
+        const stopVideoResponce = await agoraStopVideoApi(this.state.resourceId, uid, this.state.startingId)
+        if (stopVideoResponce) {
+            console.log("stop-video-------------", stopVideoResponce)
+        }
+    }
+//@ts-ignore
+    getSelectedDayEvents = date => {
+        console.log('--------',date);
+        
+        let markedDates = {};
+        //@ts-ignore
+
+        markedDates[date]= { selected: true, color: '#00B0BF', textColor: '#FFFFFF' };
+        let serviceDate = moment(date);
+                //@ts-ignore
+
+        serviceDate = serviceDate.format("DD.MM.YYYY");
+        this.setState({
+            selectedDate: serviceDate,
+            markedDates: markedDates
+        });
+    };
 
     render() {
         return (
             <View style={styles.max}>
-                <View style={styles.max}>
+                {/* <View style={styles.max}>
                     <View style={styles.buttonHolder}>
                         <TouchableOpacity
                             onPress={this.startCall}
@@ -187,7 +219,38 @@ export default class App extends Component<Props, State> {
                         </TouchableOpacity>
                     </View>
                     {this._renderVideos()}
-                </View>
+                </View> */}
+               <Calendar
+  style={{ height: 300, width: "90%", justifyContent: "center" }}
+  theme={{
+    backgroundColor: "#ffffff",
+    calendarBackground: "#ffffff",
+    todayTextColor: "#57B9BB",
+    dayTextColor: "#222222",
+    textDisabledColor: "#d9e1e8",
+    monthTextColor: "#57B9BB",
+    arrowColor: "#57B9BB",
+    textDayFontWeight: "300",
+    textMonthFontWeight: "bold",
+    textDayHeaderFontWeight: "500",
+    textDayFontSize: 16,
+    textMonthFontSize: 18,
+    selectedDayBackgroundColor: "#57B9BB",
+    selectedDayTextColor: "white",
+    textDayHeaderFontSize: 8
+  }}
+  minDate={"1996-05-10"}
+  maxDate={"2030-05-30"}
+  monthFormat={"MMMM yyyy "}
+  markedDates={this.state.markedDates}
+  scrollEnabled={true}
+  horizontal={true}
+  showScrollIndicator={true}
+  disableMonthChange={true}
+  onDayPress={day => {
+    this.getSelectedDayEvents(day.dateString);
+  }}
+/>
             </View>
         )
     }
@@ -227,8 +290,9 @@ export default class App extends Component<Props, State> {
         )
     }
     endCall = async () => {
-        await this._engine?.leaveChannel()
+        this.agoraStopVideo()
         this.setState({ peerIds: [], joinSucceed: false })
+        await this._engine?.leaveChannel()
     }
 
 

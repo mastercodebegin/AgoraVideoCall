@@ -6,6 +6,7 @@ import RtcEngine, { RtcLocalView, RtcRemoteView, ScreenVideoParameters, VideoRen
 import styles from './Style'
 import { agoraAcquire, agoraGetQuery, agoraStopVideoApi, agoraVideoStartRecording } from "./agora-Apis";
 import { Calendar, CalendarList } from 'react-native-calendars';
+import DatepickerRange from 'react-native-range-datepicker';
 import moment from 'moment';
 
 // const appId = "86ae8b0dac6346b6929241a5931107c20";
@@ -24,13 +25,15 @@ interface Props {
 interface State {
     appId: string,
     channelName: string,
-    token: string,
+    token: any,
     joinSucceed: boolean,
     peerIds: number[],
     resourceId: any,
     startingId: any,
-    selectedDate:any,
-    markedDates:any
+    selectedDate: any,
+    markedDates: any,
+    startDate: any;
+    endDate: any;
 
 }
 
@@ -63,17 +66,18 @@ export default class App extends Component<Props, State> {
     constructor(props: Props) {
         super(props)
         this.state = {
-            appId: '86ae8b0dac6346b6929241a5931107c2',
+            appId: '486078f000b4436ca2e298cae2f13422',
             channelName: 'test',
-            token: '86ae8b0dac6346b6929241a5931107c2',
+            //token: '007eJxTYGg98d8vcFPqkYIJyQ1v9u+6o2T/dUfLhqZ9frwiLzZrXoxUYDCxMDMwt0gzMDBIMjExNktONEo1srRITkw1SjM0NjEy2vejNLkhkJEhKiWQmZEBAkF8FoaS1OISBgYA9TMhOw==',
+            token: "007eJxTYOi/L7yMcdKmh2133kkwCCiyp4rl9U7OmvH454+n7/5Iqp5VYDCxMDMwt0gzMDBIMjExNktONEo1srRITkw1SjM0NjEyKvlfmNwQyMhgmRjAzMgAgSA+C0NJanEJAwMAa6EfrA==",
             joinSucceed: false,
             peerIds: [],
             resourceId: '',
             startingId: '',
-            
-                selectedDate: "",
-                markedDates: {}
-            
+            selectedDate: "",
+            markedDates: {},
+            startDate: '',
+            endDate: ''
         }
         if (Platform.OS === 'android') {
             requestCameraAndAudioPermission().then(() => {
@@ -83,17 +87,29 @@ export default class App extends Component<Props, State> {
     }
     // Other code. See step 5 to step 10.
     componentDidMount() {
+        console.log('help')
         this.init()
     }
     // Pass in your App ID through this.state, create and initialize an RtcEngine object.
     init = async () => {
-        const { appId } = this.state
+        const { appId, token } = this.state
         this._engine = await RtcEngine.create(appId)
+       // const newToken = this._engine.renewToken(token)
         // Enable the video module.
+        console.log(this?._engine, appId, 'engine=================================')
         await this._engine.enableVideo()
 
         // Listen for the UserJoined callback.
         // This callback occurs when the remote user successfully joins the channel.
+
+        this._engine.addListener('Warning', (warn) => {
+            console.log('Warning', warn);
+        });
+
+        this._engine.addListener('Error', (err) => {
+            console.log('Error', err);
+        });
+
         this._engine.addListener('UserJoined', (uid, elapsed) => {
             console.log('UserJoined', uid, elapsed)
             const { peerIds } = this.state
@@ -136,12 +152,10 @@ export default class App extends Component<Props, State> {
     }
 
     startCall = async () => {
-
-        await this._engine?.joinChannel(tempToken, this.state.channelName, null, 0)
-        setTimeout(() => {
-            this._engine?.startScreenCapture({ videoParams: { bitrate: 200, frameRate: 100 } })
-            // this.agoraSavedvideoApi()
-        }, 3000);
+        await this._engine?.joinChannel(this.state.token, this.state.channelName, null, 0)
+        // setTimeout(() => {
+        //      this.agoraSavedvideoApi()
+        // }, 3000);
     }
 
     agoraSavedvideoApi = async () => {
@@ -152,10 +166,10 @@ export default class App extends Component<Props, State> {
 
         console.log('start-video ID2', this.state.peerIds[0]);
         //"calling  agoraAcquire For resourceId"
-        const resourceId = await agoraAcquire(uid)
-        if (resourceId) {
-            console.log('Aquire resourceId-------------', resourceId)
-            this.agoraStartVideoRecordingApi(resourceId)
+        const responce = await agoraAcquire(uid)
+        if (responce) {
+            console.log('resourceId-------------', responce)
+            this.agoraStartVideoRecordingApi(responce)
 
         }
     }
@@ -164,7 +178,7 @@ export default class App extends Component<Props, State> {
         let uid = this.state.peerIds.length > 0 && this.state.peerIds[0]
         console.log('agoraStartVideoRecordingApi peerIds----------', uid);
 
-        const responseStartVideo = await agoraVideoStartRecording(resourceId.resourceId, uid,)
+        const responseStartVideo = await agoraVideoStartRecording(resourceId.resourceId, uid, 'test')
         if (responseStartVideo) {
             console.log('agoraVideoStartRecording-----------------------', responseStartVideo,)
             const responce2 = await agoraGetQuery(responseStartVideo.resourceId, responseStartVideo.sid)
@@ -184,16 +198,14 @@ export default class App extends Component<Props, State> {
             console.log("stop-video-------------", stopVideoResponce)
         }
     }
-//@ts-ignore
+    //@ts-ignore
     getSelectedDayEvents = date => {
-        console.log('--------',date);
-        
+        console.log('--------', date);
         let markedDates = {};
         //@ts-ignore
-
-        markedDates[date]= { selected: true, color: '#00B0BF', textColor: '#FFFFFF' };
+        markedDates[date] = { startingDay: true, color: 'lightgreen', endingDay: true };
         let serviceDate = moment(date);
-                //@ts-ignore
+        //@ts-ignore
 
         serviceDate = serviceDate.format("DD.MM.YYYY");
         this.setState({
@@ -203,6 +215,7 @@ export default class App extends Component<Props, State> {
     };
 
     render() {
+        console.log(this.state.startDate, this.state.endDate);
         return (
             <View style={styles.max}>
                 {/* <View style={styles.max}>
@@ -220,37 +233,23 @@ export default class App extends Component<Props, State> {
                     </View>
                     {this._renderVideos()}
                 </View> */}
-               <Calendar
-  style={{ height: 300, width: "90%", justifyContent: "center" }}
-  theme={{
-    backgroundColor: "#ffffff",
-    calendarBackground: "#ffffff",
-    todayTextColor: "#57B9BB",
-    dayTextColor: "#222222",
-    textDisabledColor: "#d9e1e8",
-    monthTextColor: "#57B9BB",
-    arrowColor: "#57B9BB",
-    textDayFontWeight: "300",
-    textMonthFontWeight: "bold",
-    textDayHeaderFontWeight: "500",
-    textDayFontSize: 16,
-    textMonthFontSize: 18,
-    selectedDayBackgroundColor: "#57B9BB",
-    selectedDayTextColor: "white",
-    textDayHeaderFontSize: 8
-  }}
-  minDate={"1996-05-10"}
-  maxDate={"2030-05-30"}
-  monthFormat={"MMMM yyyy "}
-  markedDates={this.state.markedDates}
-  scrollEnabled={true}
-  horizontal={true}
-  showScrollIndicator={true}
-  disableMonthChange={true}
-  onDayPress={day => {
-    this.getSelectedDayEvents(day.dateString);
-  }}
-/>
+                <DatepickerRange
+                  monthProps={{
+                    titleStyle: { fontSize: 10, padding: 10 },
+                }}
+                    startDate={this.state.startDate}
+                    dayHeadings={['SUN', 'MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT']}
+                    closeButtonText='Help'
+                    dayHeaderDividerColor={"red"}
+                    buttonColor={'green'}
+                    onSelect={() => {this.setState({startDate:'',endDate:''})}}
+                    todayColor={'red'}
+                    showReset={true}
+                    showClose={false}
+                    chosenDateTextColor={'red'}
+                    untilDate={this.state.endDate}
+                    onConfirm={(startDate: any, untilDate: any) => startDate && untilDate ?  this.setState({ startDate :moment(new Date(startDate?.$d.toString().substr(0, 16))).format("DD/MMM/YYYY"), endDate:moment(new Date(untilDate?.$d.toString().substr(0, 16))).format("DD/MMM/YYYY") }) : Alert.alert('Please Select start date and End date')}
+                />
             </View>
         )
     }

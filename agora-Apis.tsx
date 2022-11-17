@@ -37,57 +37,59 @@ export async function agoraAcquire(uid: any) {
 }
 
 
-export async function agoraVideoStartRecording(resourceId: any, uid: any) {
-  //console.log(userData,"Data Video Recored")
-  const url = `https://api.agora.io/v1/apps/${appId}/cloud_recording/resourceid/${resourceId}/mode/mix/start`;
-
-  const body = {
-    "cname": channelName,
-    "uid": uid.toString(),
-    "clientRequest": {
-      "token": '86ae8b0dac6346b6929241a5931107c2',
-      "recordingConfig": {
-        "maxIdleTime": 100,
-        "streamTypes": 2,
-        "channelType": 0,
-        "transcodingConfig": {
-          "backgroundColor": "#FF0000",
-          "height": 640,
-          "width": 360,
-          "bitrate": 500,
-          "fps": 15,
-          "mixedVideoLayout": 1
-        },
-        "subscribeUidGroup": 0
-      },
-      "recordingFileConfig": {
-        "avFileType": [
-           "hls","mp4"
-        ]
-      },
-      "storageConfig": {
-        "vendor": 1,
-        "region": 14,
-        "bucket": 'bucket-danial',
-        "accessKey": 'AKIARXNPZ45EUC65TTE2',
-        "secretKey": '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',
-        "fileNamePrefix": [
-          'test'
-        ]
+export async function agoraVideoStartRecording(resourceId:any,uid:any,testId:any) {
+ //console.log(userData,"Data Video Recored")
+    const url = `https://api.agora.io/v1/apps/${appId}/cloud_recording/resourceid/${resourceId}/mode/mix/start`;
+    console.log('resource URl Video Recored', uid)
+  
+    const body = {
+        "cname":channelName,
+        "uid":uid.toString(),
+        "clientRequest":{
+            "token":'007eJxTYOi/L7yMcdKmh2133kkwCCiyp4rl9U7OmvH454+n7/5Iqp5VYDCxMDMwt0gzMDBIMjExNktONEo1srRITkw1SjM0NjEyKvlfmNwQyMhgmRjAzMgAgSA+C0NJanEJAwMAa6EfrA==',
+            "recordingConfig": {
+              "maxIdleTime": 100,
+              "streamTypes": 2,
+              "channelType": 0,
+              "transcodingConfig": {
+                  "height": 640,
+                  "width": 360,
+                  "bitrate": 500,
+                  "fps": 15,
+                  "mixedVideoLayout": 1
+              },
+              "subscribeUidGroup": 0
+          },
+          "recordingFileConfig": {
+              "avFileType": [
+                  "hls","mp4"
+              ]
+          },
+            "storageConfig":{
+                "vendor":1,
+                "region":14,
+                "bucket":'bucket-danial',
+                "accessKey":'AKIARXNPZ45EUC65TTE2',
+               // "accessKey":'AKIAROXKPBVFFGDA7L5M',
+                //"secretKey":'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',
+                "secretKey":'nD8rpSTLCSUUK/alp9HlPKdSpdqT6t9YC6tIM5Ja',
+                "fileNamePrefix": [
+                  `testing`
+              ]
+            }	
+        }
+    }
+    let response = await  fetch(url,{
+      method:'POST',
+      headers: headers,
+      body:JSON.stringify(body)
+    })
+    let result = await response.json();
+  
+      if (result) {
+       return result
       }
     }
-  }
-  let response = await fetch(url, {
-    method: 'POST',
-    headers: headers,
-    body: JSON.stringify(body)
-  })
-  let result = await response.json();
-
-  if (result) {
-    return result
-  }
-}
 
 
 

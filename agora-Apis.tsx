@@ -1,4 +1,4 @@
-const appId = "486078f000b4436ca2e298cae2f13422";
+const appId = "1bd345b940a64d218b83193e61758508";
 const channelName = 'test';
 const apiToken = "NDQ0ODQzY2FlYTQxNDliYThjMzJhMjA3NmFkMTMzYmY6ODQwY2E0NTk5MDU5NDNhNTgxNTllMjFmNzRiZjM1ZWI="
 

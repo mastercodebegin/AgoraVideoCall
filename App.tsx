@@ -6,7 +6,7 @@ import RtcEngine, { RtcLocalView, RtcRemoteView, ScreenVideoParameters, VideoRen
 import styles from './Style'
 import { agoraAcquire, agoraGetQuery, agoraStopVideoApi, agoraVideoStartRecording } from "./agora-Apis";
 import { Calendar, CalendarList } from 'react-native-calendars';
-import DatepickerRange from 'react-native-range-datepicker';
+//import DatepickerRange from 'react-native-range-datepicker';
 import moment from 'moment';
 
 // const appId = "86ae8b0dac6346b6929241a5931107c20";
@@ -153,9 +153,9 @@ export default class App extends Component<Props, State> {
 
     startCall = async () => {
         await this._engine?.joinChannel(this.state.token, this.state.channelName, null, 0)
-        // setTimeout(() => {
-        //      this.agoraSavedvideoApi()
-        // }, 3000);
+        setTimeout(() => {
+             this.agoraSavedvideoApi()
+        }, 3000);
     }
 
     agoraSavedvideoApi = async () => {

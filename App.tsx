@@ -69,7 +69,7 @@ export default class App extends Component<Props, State> {
             appId: '486078f000b4436ca2e298cae2f13422',
             channelName: 'test',
             //token: '007eJxTYGg98d8vcFPqkYIJyQ1v9u+6o2T/dUfLhqZ9frwiLzZrXoxUYDCxMDMwt0gzMDBIMjExNktONEo1srRITkw1SjM0NjEy2vejNLkhkJEhKiWQmZEBAkF8FoaS1OISBgYA9TMhOw==',
-            token: "007eJxTYOi/L7yMcdKmh2133kkwCCiyp4rl9U7OmvH454+n7/5Iqp5VYDCxMDMwt0gzMDBIMjExNktONEo1srRITkw1SjM0NjEyKvlfmNwQyMhgmRjAzMgAgSA+C0NJanEJAwMAa6EfrA==",
+            token: "007eJxTYMgQe9ks9yv9XIr99g6Jee/bWFw/Xp4X3+nEdejFnPtCdwwUGEwszAzMLdIMDAySTEyMzZITjVKNLC2SE1ON0gyNTYyM7m2pSW4IZGRQk+ZjZWSAQBCfhaEktbiEgQEAXRYe/Q==",
             joinSucceed: false,
             peerIds: [],
             resourceId: '',
@@ -218,7 +218,7 @@ export default class App extends Component<Props, State> {
         console.log(this.state.startDate, this.state.endDate);
         return (
             <View style={styles.max}>
-                {/* <View style={styles.max}>
+                <View style={styles.max}>
                     <View style={styles.buttonHolder}>
                         <TouchableOpacity
                             onPress={this.startCall}
@@ -232,8 +232,8 @@ export default class App extends Component<Props, State> {
                         </TouchableOpacity>
                     </View>
                     {this._renderVideos()}
-                </View> */}
-                <DatepickerRange
+                </View>
+                {/* <DatepickerRange
                   monthProps={{
                     titleStyle: { fontSize: 10, padding: 10 },
                 }}
@@ -249,7 +249,7 @@ export default class App extends Component<Props, State> {
                     chosenDateTextColor={'red'}
                     untilDate={this.state.endDate}
                     onConfirm={(startDate: any, untilDate: any) => startDate && untilDate ?  this.setState({ startDate :moment(new Date(startDate?.$d.toString().substr(0, 16))).format("DD/MMM/YYYY"), endDate:moment(new Date(untilDate?.$d.toString().substr(0, 16))).format("DD/MMM/YYYY") }) : Alert.alert('Please Select start date and End date')}
-                />
+                /> */}
             </View>
         )
     }

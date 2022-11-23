@@ -1,24 +1,21 @@
-const appId = "86ae8b0dac6346b6929241a5931107c2";
+const appId = "486078f000b4436ca2e298cae2f13422";
 const channelName = 'test';
 const apiToken = "NDQ0ODQzY2FlYTQxNDliYThjMzJhMjA3NmFkMTMzYmY6ODQwY2E0NTk5MDU5NDNhNTgxNTllMjFmNzRiZjM1ZWI="
 
-// const token = '00612a7d67b803b4e7f96ec1355192490a3IACnf+/qALdmTwHz+yycY9OACaZRC5kAUcoHxnkL6s+CwsN2C/EAAAAAEAAorRuJ9jxqYgEAAQD1PGpi'
+const token = '007eJxTYMgQe9ks9yv9XIr99g6Jee/bWFw/Xp4X3+nEdejFnPtCdwwUGEwszAzMLdIMDAySTEyMzZITjVKNLC2SE1ON0gyNTYyM7m2pSW4IZGRQk+ZjZWSAQBCfhaEktbiEgQEAXRYe/Q=='
 const headers = {
   'Content-Type': 'application/json',
   Authorization: 'Basic' + apiToken
 }
 
 export async function agoraAcquire(uid: any) {
-
+console.log(uid,'first')
   const url = `https://api.agora.io/v1/apps/${appId}/cloud_recording/acquire`;
 
   const body = {
     "cname": 'test',
     "uid": uid.toString(),
-    "clientRequest": {
-      "region": "CN",
-      "resourceExpiredHour": 24,
-    }
+    "clientRequest": {}
   }
 
   let response = await fetch(url, {
@@ -38,7 +35,6 @@ export async function agoraAcquire(uid: any) {
 
 
 export async function agoraVideoStartRecording(resourceId:any,uid:any,testId:any) {
- //console.log(userData,"Data Video Recored")
     const url = `https://api.agora.io/v1/apps/${appId}/cloud_recording/resourceid/${resourceId}/mode/mix/start`;
     console.log('resource URl Video Recored', uid)
   
@@ -46,7 +42,7 @@ export async function agoraVideoStartRecording(resourceId:any,uid:any,testId:any
         "cname":channelName,
         "uid":uid.toString(),
         "clientRequest":{
-            "token":'007eJxTYOi/L7yMcdKmh2133kkwCCiyp4rl9U7OmvH454+n7/5Iqp5VYDCxMDMwt0gzMDBIMjExNktONEo1srRITkw1SjM0NjEyKvlfmNwQyMhgmRjAzMgAgSA+C0NJanEJAwMAa6EfrA==',
+            "token":token,
             "recordingConfig": {
               "maxIdleTime": 100,
               "streamTypes": 2,
@@ -68,7 +64,7 @@ export async function agoraVideoStartRecording(resourceId:any,uid:any,testId:any
             "storageConfig":{
                 "vendor":1,
                 "region":14,
-                "bucket":'bucket-danial',
+                "bucket":'danial-recording',
                 "accessKey":'AKIARXNPZ45EUC65TTE2',
                // "accessKey":'AKIAROXKPBVFFGDA7L5M',
                 //"secretKey":'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',

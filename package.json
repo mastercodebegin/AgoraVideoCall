@@ -19,7 +19,8 @@
     "react-native-gesture-handler": "^2.8.0",
     "react-native-mask-input": "^1.2.2",
     "react-native-modalize": "^2.1.1",
-    "react-native-range-datepicker": "^2.2.0"
+    "react-native-range-datepicker": "^2.2.0",
+    "react-native-record-screen": "^0.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",

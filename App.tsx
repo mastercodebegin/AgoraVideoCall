@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, ScrollView, Text, TouchableOpacity, View, PermissionsAndroid, Alert } from 'react-native'
+import { Platform, ScrollView, Text, TouchableOpacity, View, PermissionsAndroid, Alert, TouchableHighlight, ToastAndroid } from 'react-native'
 // Import the RtcEngine class and view rendering components into your project.
 import RtcEngine, { RtcLocalView, RtcRemoteView, ScreenVideoParameters, VideoRenderMode } from 'react-native-agora'
 // Import the UI styles.
@@ -8,6 +8,9 @@ import { agoraAcquire, agoraGetQuery, agoraStopVideoApi, agoraVideoStartRecordin
 import { Calendar, CalendarList } from 'react-native-calendars';
 //import DatepickerRange from 'react-native-range-datepicker';
 import moment from 'moment';
+
+import Video from 'react-native-video';
+import RecordScreen from 'react-native-record-screen';
 
 // const appId = "86ae8b0dac6346b6929241a5931107c20";
 const channelName = 'Video';
@@ -34,6 +37,8 @@ interface State {
     markedDates: any,
     startDate: any;
     endDate: any;
+    recording: any;
+    uri: any;
 
 }
 
@@ -77,7 +82,9 @@ export default class App extends Component<Props, State> {
             selectedDate: "",
             markedDates: {},
             startDate: '',
-            endDate: ''
+            recording: false,
+            endDate: '',
+            uri: '',
         }
         if (Platform.OS === 'android') {
             requestCameraAndAudioPermission().then(() => {
@@ -94,7 +101,7 @@ export default class App extends Component<Props, State> {
     init = async () => {
         const { appId, token } = this.state
         this._engine = await RtcEngine.create(appId)
-       // const newToken = this._engine.renewToken(token)
+        // const newToken = this._engine.renewToken(token)
         // Enable the video module.
         console.log(this?._engine, appId, 'engine=================================')
         await this._engine.enableVideo()
@@ -154,7 +161,7 @@ export default class App extends Component<Props, State> {
     startCall = async () => {
         await this._engine?.joinChannel(this.state.token, this.state.channelName, null, 0)
         setTimeout(() => {
-             this.agoraSavedvideoApi()
+            this.agoraSavedvideoApi()
         }, 3000);
     }
 
@@ -214,11 +221,51 @@ export default class App extends Component<Props, State> {
         });
     };
 
+
+    _handleOnRecording = async () => {
+        if (this.state.recording) {
+            this.setState({ recording: false })
+            const res = await RecordScreen.stopRecording().catch((error: any) =>{
+                RecordScreen.clean()    
+             Platform.OS === 'android' &&   ToastAndroid.show(error.toString(), ToastAndroid.LONG)
+             console.log("error.toString()", error.toString());
+            }
+            );
+            console.log('res', res);
+            if (res) {
+                Platform.OS === 'android' &&  ToastAndroid.show('Record successfully done!!', ToastAndroid.LONG);
+                console.log("'Record successfully done!!");
+                this.setState({ uri: res.result.outputURL })
+
+            }
+        } else {
+            this.setState({ uri: '' })
+            this.setState({ recording: true })
+            await RecordScreen.startRecording({ mic: false }).catch((error: any) => {
+                Platform.OS === 'android' &&    ToastAndroid.show(error.toString(), ToastAndroid.LONG);
+             console.log("error.toString()", error.toString());
+                this.setState({ recording: false })
+                this.setState({ uri: '' })
+            });
+        }
+    };
+
+
     render() {
         console.log(this.state.startDate, this.state.endDate);
         return (
             <View style={styles.max}>
                 <View style={styles.max}>
+               
+                <Text style={{textAlign:'center',fontSize:20,paddingTop:'20%'}}> {this.state.recording ? 'Screen recording stop' : 'Screen recording start'} </Text>
+                        <TouchableOpacity
+                            onPress={this._handleOnRecording}
+                            style={{top:50,backgroundColor:'black',borderRadius:90,padding:20,alignItems:'center',alignSelf:'center'}}>
+                            <View style={styles.btnWrapper}>
+                                <View style={this.state.recording ? styles.btnActive : styles.btnDefault} />
+                            </View>
+                        </TouchableOpacity>
+
                     <View style={styles.buttonHolder}>
                         <TouchableOpacity
                             onPress={this.startCall}
@@ -231,7 +278,10 @@ export default class App extends Component<Props, State> {
                             <Text style={styles.buttonText}> End Call </Text>
                         </TouchableOpacity>
                     </View>
+                 
                     {this._renderVideos()}
+
+                    
                 </View>
                 {/* <DatepickerRange
                   monthProps={{

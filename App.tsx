@@ -1,13 +1,26 @@
 import React, { Component } from 'react'
-import { Platform, ScrollView, Text, TouchableOpacity, View, PermissionsAndroid, Alert } from 'react-native'
+import { Platform, ScrollView, Text, TouchableOpacity, View, PermissionsAndroid, Alert, Image, TouchableHighlight } from 'react-native'
 // Import the RtcEngine class and view rendering components into your project.
-import RtcEngine, { RtcLocalView, RtcRemoteView, ScreenVideoParameters, VideoRenderMode } from 'react-native-agora'
+import RtcEngine, {
+    RtcLocalView,
+    RtcRemoteView,
+    VideoRenderMode,
+    LocalVideoStreamState,
+    LocalVideoStreamError,
+} from 'react-native-agora'
 // Import the UI styles.
 import styles from './Style'
-import { agoraAcquire, agoraGetQuery, agoraStopVideoApi, agoraVideoStartRecording } from "./agora-Apis";
+import {
+    agoraAcquire,
+    agoraGetQuery,
+    agoraStopVideoApi,
+    agoraVideoStartRecording,
+} from "./agora-Apis";
 import { Calendar, CalendarList } from 'react-native-calendars';
 //import DatepickerRange from 'react-native-range-datepicker';
 import moment from 'moment';
+var RNFS = require('react-native-fs');
+
 
 // const appId = "86ae8b0dac6346b6929241a5931107c20";
 const channelName = 'Video';
@@ -27,14 +40,15 @@ interface State {
     channelName: string,
     token: any,
     joinSucceed: boolean,
-    peerIds: number[],
+    isRecording: boolean,
+    peerIds: any,
     resourceId: any,
     startingId: any,
     selectedDate: any,
     markedDates: any,
     startDate: any;
     endDate: any;
-
+    startScreenCaptureBool: any;
 }
 
 var testTump = 1;
@@ -43,10 +57,14 @@ const requestCameraAndAudioPermission = async () => {
         const granted = await PermissionsAndroid.requestMultiple([
             PermissionsAndroid.PERMISSIONS.CAMERA,
             PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
         ])
         if (
             granted['android.permission.RECORD_AUDIO'] === PermissionsAndroid.RESULTS.GRANTED
             && granted['android.permission.CAMERA'] === PermissionsAndroid.RESULTS.GRANTED
+            && granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
+            && granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
         ) {
             console.log('You can use the cameras & mic')
         } else {
@@ -66,10 +84,11 @@ export default class App extends Component<Props, State> {
     constructor(props: Props) {
         super(props)
         this.state = {
-            appId: '486078f000b4436ca2e298cae2f13422',
+            appId: '1bd345b940a64d218b83193e61758508',
             channelName: 'test',
             //token: '007eJxTYGg98d8vcFPqkYIJyQ1v9u+6o2T/dUfLhqZ9frwiLzZrXoxUYDCxMDMwt0gzMDBIMjExNktONEo1srRITkw1SjM0NjEy2vejNLkhkJEhKiWQmZEBAkF8FoaS1OISBgYA9TMhOw==',
-            token: "007eJxTYMgQe9ks9yv9XIr99g6Jee/bWFw/Xp4X3+nEdejFnPtCdwwUGEwszAzMLdIMDAySTEyMzZITjVKNLC2SE1ON0gyNTYyM7m2pSW4IZGRQk+ZjZWSAQBCfhaEktbiEgQEAXRYe/Q==",
+            // token: "007eJxTYMgQe9ks9yv9XIr99g6Jee/bWFw/Xp4X3+nEdejFnPtCdwwUGEwszAzMLdIMDAySTEyMzZITjVKNLC2SE1ON0gyNTYyM7m2pSW4IZGRQk+ZjZWSAQBCfhaEktbiEgQEAXRYe/Q==",
+            token: "007eJxTYBCYOoF31XfxY74F/T0cpqcbzSYEWB1bs+PomXfXTktMuv1QgcHEwszA3CLNwMAgycTE2Cw50SjVyNIiOTHVKM3Q2MTI6Mq81uSGQEaG+08cmBgZIBDEZ2EoSS0uYWAAAKEzIVI=",
             joinSucceed: false,
             peerIds: [],
             resourceId: '',
@@ -77,7 +96,9 @@ export default class App extends Component<Props, State> {
             selectedDate: "",
             markedDates: {},
             startDate: '',
-            endDate: ''
+            endDate: '',
+            startScreenCaptureBool: false,
+            isRecording: false,
         }
         if (Platform.OS === 'android') {
             requestCameraAndAudioPermission().then(() => {
@@ -96,21 +117,20 @@ export default class App extends Component<Props, State> {
         this._engine = await RtcEngine.create(appId)
        // const newToken = this._engine.renewToken(token)
         // Enable the video module.
-        console.log(this?._engine, appId, 'engine=================================')
-        await this._engine.enableVideo()
+        await this?._engine.enableVideo()
 
         // Listen for the UserJoined callback.
         // This callback occurs when the remote user successfully joins the channel.
-
-        this._engine.addListener('Warning', (warn) => {
-            console.log('Warning', warn);
+        this?._engine.addListener('Warning', (warn) => {
+            // console.log('Warning', warn);
         });
 
-        this._engine.addListener('Error', (err) => {
+        this?._engine.addListener('Error', (err) => {
             console.log('Error', err);
         });
 
-        this._engine.addListener('UserJoined', (uid, elapsed) => {
+
+        this?._engine.addListener('UserJoined', (uid, elapsed) => {
             console.log('UserJoined', uid, elapsed)
             const { peerIds } = this.state
             if (peerIds.indexOf(uid) === -1) {
@@ -124,18 +144,18 @@ export default class App extends Component<Props, State> {
 
         // Listen for the UserOffline callback.
         // This callback occurs when the remote user leaves the channel or drops offline.
-        this._engine.addListener('UserOffline', (uid, reason) => {
+        this?._engine.addListener('UserOffline', (uid, reason) => {
             console.log('UserOffline', uid, reason)
             const { peerIds } = this.state
             this.setState({
                 // Remove peer ID from state array
-                peerIds: peerIds.filter(id => id !== uid)
+                peerIds: peerIds.filter((id: number) => id !== uid)
             })
         })
 
         // Listen for the JoinChannelSuccess callback.
         // This callback occurs when the local user successfully joins the channel.
-        this._engine.addListener('JoinChannelSuccess', (channel, uid, elapsed) => {
+        this?._engine.addListener('JoinChannelSuccess', (channel, uid, elapsed) => {
             console.log('JoinChannelSuccess-----------------', channel, uid, elapsed)
             this.setState({
                 joinSucceed: true
@@ -148,14 +168,76 @@ export default class App extends Component<Props, State> {
 
             // }
 
-        })
+        });
+
+        // this._engine?.startScreenCapture
+
+
+
+    }
+
+    enableRecording = () => {
+        this.setState({ isRecording: true })
+        const albumPath = `${RNFS.PicturesDirectoryPath}/${'Faltu'}`;
+
+        const fileName = `${new Date().getTime()}.mp4`;
+        const filePathInCache = `${RNFS.CachesDirectoryPath}/${fileName}`;
+        const filePathInAlbum = `${albumPath}/${fileName}`;
+
+        var config = {
+            storagePath: filePathInAlbum,
+            containerFormat: 1,
+            streamType: 0x3,
+            maxDurationMs: 9000000,
+            recorderInfoUpdateInterval: 10000,
+        }
+        if (this.state.joinSucceed) {
+            console.log("Recording started!!")
+            this._engine?.startRecording(config)
+                .catch((e) => console.log("errorrrr", e))
+
+        } else {
+            console.log("Please join first")
+        }
+        return RNFS.mkdir(albumPath)
+            .then(() => {
+                RNFS.writeFile(filePathInCache, 'base64').then(() => RNFS.copyFile(filePathInCache, filePathInAlbum)
+                    // Next step to show album without the need to re-boot your device:
+                    .then(() => RNFS.scanFile(filePathInAlbum))
+                    .then(() => {
+                        console.log('File Saved Successfully!');
+                    }));
+            })
+            .catch((error:any) => {
+                console.log('Could not create dir', error);
+            });
+
+      
+        // this._engine?.startScreenCapture(config).then((result)=> {
+        //     console.log("result", result);
+        //     }).catch((e) => console.log("errorrrr",e))
+    }
+
+    stopRecording = () => {
+        this.setState({ isRecording: false })
+        if (this.state.joinSucceed) {
+            console.log("Recording stopped!!")
+            this._engine?.stopRecording()
+        }
+        // this._engine?.stopScreenCapture()
     }
 
     startCall = async () => {
-        await this._engine?.joinChannel(this.state.token, this.state.channelName, null, 0)
-        setTimeout(() => {
-             this.agoraSavedvideoApi()
-        }, 3000);
+        try {
+            await this?._engine?.joinChannel(this.state.token, this.state.channelName, null, 0)
+            console.log("this.state.channelName", this.state.channelName);
+            console.log("this.state.token", this.state.token);
+        } catch (error) {
+            console.log("error", error);
+        }
+        // setTimeout(() => {
+        //     this.agoraSavedvideoApi()
+        // }, 3000);
     }
 
     agoraSavedvideoApi = async () => {
@@ -164,7 +246,6 @@ export default class App extends Component<Props, State> {
         console.log('start-video ID------------------------', uid);
         console.log('peerIds------------------------', this.state.peerIds);
 
-        console.log('start-video ID2', this.state.peerIds[0]);
         //"calling  agoraAcquire For resourceId"
         const responce = await agoraAcquire(uid)
         if (responce) {
@@ -230,8 +311,18 @@ export default class App extends Component<Props, State> {
                             style={styles.button}>
                             <Text style={styles.buttonText}> End Call </Text>
                         </TouchableOpacity>
+                        {this.state.joinSucceed &&
+                            <View style={styles.btnContainer}>
+                                <TouchableHighlight onPress={this.state.isRecording ? this.stopRecording : this.enableRecording} >
+                                    <View style={styles.btnWrapper}>
+                                        <View style={this.state.isRecording ? styles.btnActive : styles.btnDefault} />
+                                    </View>
+                                </TouchableHighlight>
+                            </View>
+                        }
                     </View>
                     {this._renderVideos()}
+
                 </View>
                 {/* <DatepickerRange
                   monthProps={{
@@ -275,7 +366,7 @@ export default class App extends Component<Props, State> {
                 style={styles.remoteContainer}
                 contentContainerStyle={{ paddingHorizontal: 2.5 }}
                 horizontal={true}>
-                {peerIds.map((value, index, array) => {
+                {peerIds.map((value: number, index: any, array: any) => {
                     return (
                         <RtcRemoteView.SurfaceView
                             style={styles.remote}
@@ -289,9 +380,13 @@ export default class App extends Component<Props, State> {
         )
     }
     endCall = async () => {
+        if (this.state.joinSucceed) {
+            console.log("Recording stopped!!")
+            this._engine?.stopRecording()
+        }
         this.agoraStopVideo()
         this.setState({ peerIds: [], joinSucceed: false })
-        await this._engine?.leaveChannel()
+        await this?._engine?.leaveChannel()
     }
 
 

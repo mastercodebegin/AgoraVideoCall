@@ -45,4 +45,34 @@ export default StyleSheet.create({
         paddingVertical: 5,
         color: '#0093E9',
     },
+
+    btnDefault: {
+        width: 48,
+        height: 48,
+        backgroundColor: '#fff',
+        borderRadius: 24,
+        borderWidth: 4,
+        borderStyle: 'solid',
+        borderColor: '#212121',
+      },
+      btnActive: {
+        width: 26,
+        height: 26,
+        backgroundColor: 'red',
+        borderRadius: 8,
+      },
+      btnWrapper: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 50,
+        height: 50,
+        backgroundColor: '#fff',
+        borderRadius: 30,
+      },
+      btnContainer: {
+        alignItems: 'center',
+        padding:5,
+        justifyContent:'center',
+        backgroundColor: '#212121',
+      },
 })

@@ -16,6 +16,7 @@
     "react-native": "0.68.0",
     "react-native-agora": "^3.7.1",
     "react-native-calendars": "^1.1291.1",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.8.0",
     "react-native-mask-input": "^1.2.2",
     "react-native-modalize": "^2.1.1",

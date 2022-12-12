@@ -2,7 +2,8 @@ const appId = "1bd345b940a64d218b83193e61758508";
 const channelName = 'test';
 const apiToken = "NDQ0ODQzY2FlYTQxNDliYThjMzJhMjA3NmFkMTMzYmY6ODQwY2E0NTk5MDU5NDNhNTgxNTllMjFmNzRiZjM1ZWI="
 
-const token = '007eJxTYMgQe9ks9yv9XIr99g6Jee/bWFw/Xp4X3+nEdejFnPtCdwwUGEwszAzMLdIMDAySTEyMzZITjVKNLC2SE1ON0gyNTYyM7m2pSW4IZGRQk+ZjZWSAQBCfhaEktbiEgQEAXRYe/Q=='
+const token = '007eJxTYBCYOoF31XfxY74F/T0cpqcbzSYEWB1bs+PomXfXTktMuv1QgcHEwszA3CLNwMAgycTE2Cw50SjVyNIiOTHVKM3Q2MTI6Mq81uSGQEaG+08cmBgZIBDEZ2EoSS0uYWAAAKEzIVI='
+// const token = '007eJxTYMgQe9ks9yv9XIr99g6Jee/bWFw/Xp4X3+nEdejFnPtCdwwUGEwszAzMLdIMDAySTEyMzZITjVKNLC2SE1ON0gyNTYyM7m2pSW4IZGRQk+ZjZWSAQBCfhaEktbiEgQEAXRYe/Q=='
 const headers = {
   'Content-Type': 'application/json',
   Authorization: 'Basic' + apiToken
@@ -37,30 +38,30 @@ console.log(uid,'first')
 export async function agoraVideoStartRecording(resourceId:any,uid:any,testId:any) {
     const url = `https://api.agora.io/v1/apps/${appId}/cloud_recording/resourceid/${resourceId}/mode/mix/start`;
     console.log('resource URl Video Recored', uid)
-  
+
     const body = {
         "cname":channelName,
         "uid":uid.toString(),
         "clientRequest":{
             "token":token,
-            "recordingConfig": {
+        "recordingConfig": {
               "maxIdleTime": 100,
-              "streamTypes": 2,
-              "channelType": 0,
-              "transcodingConfig": {
-                  "height": 640,
-                  "width": 360,
-                  "bitrate": 500,
-                  "fps": 15,
+            "streamTypes": 2,
+            "channelType": 0,
+            "transcodingConfig": {
+                "height": 640,
+                "width": 360,
+                "bitrate": 500,
+                "fps": 15,
                   "mixedVideoLayout": 1
-              },
-              "subscribeUidGroup": 0
-          },
-          "recordingFileConfig": {
-              "avFileType": [
+            },
+            "subscribeUidGroup": 0
+        },
+        "recordingFileConfig": {
+            "avFileType": [
                   "hls","mp4"
-              ]
-          },
+            ]
+        },
             "storageConfig":{
                 "vendor":1,
                 "region":14,
@@ -69,12 +70,12 @@ export async function agoraVideoStartRecording(resourceId:any,uid:any,testId:any
                // "accessKey":'AKIAROXKPBVFFGDA7L5M',
                 //"secretKey":'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',
                 "secretKey":'nD8rpSTLCSUUK/alp9HlPKdSpdqT6t9YC6tIM5Ja',
-                "fileNamePrefix": [
+            "fileNamePrefix": [
                   `testing`
               ]
-            }	
         }
     }
+}
     let response = await  fetch(url,{
       method:'POST',
       headers: headers,

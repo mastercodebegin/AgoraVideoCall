@@ -2,7 +2,7 @@ const appId = "1bd345b940a64d218b83193e61758508";
 const channelName = 'test';
 const apiToken = "NDQ0ODQzY2FlYTQxNDliYThjMzJhMjA3NmFkMTMzYmY6ODQwY2E0NTk5MDU5NDNhNTgxNTllMjFmNzRiZjM1ZWI="
 
-const token = '007eJxTYMgQe9ks9yv9XIr99g6Jee/bWFw/Xp4X3+nEdejFnPtCdwwUGEwszAzMLdIMDAySTEyMzZITjVKNLC2SE1ON0gyNTYyM7m2pSW4IZGRQk+ZjZWSAQBCfhaEktbiEgQEAXRYe/Q=='
+const token = '006486078f000b4436ca2e298cae2f13422IAA6BRhvXWckDSnd/Ofbd6okfuoGlCuAtcSWche4HVKLlgx+f9gh39v0IgBW14BTN6udYwQAAQA3TqBjAgA3TqBjAwA3TqBjBAA3TqBj'
 const headers = {
   'Content-Type': 'application/json',
   Authorization: 'Basic' + apiToken
@@ -65,12 +65,10 @@ export async function agoraVideoStartRecording(resourceId:any,uid:any,testId:any
                 "vendor":1,
                 "region":14,
                 "bucket":'danial-recording',
-                "accessKey":'AKIARXNPZ45EUC65TTE2',
-               // "accessKey":'AKIAROXKPBVFFGDA7L5M',
-                //"secretKey":'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',
-                "secretKey":'nD8rpSTLCSUUK/alp9HlPKdSpdqT6t9YC6tIM5Ja',
+                "accessKey":'AKIARXNPZ45ESD2G5LWH',
+                "secretKey":'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',
                 "fileNamePrefix": [
-                  `testing`
+                  `testing1`
               ]
             }	
         }

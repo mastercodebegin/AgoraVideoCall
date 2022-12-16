@@ -16,7 +16,6 @@ const headers = {
     'Content-Type': 'application/json',
     Authorization: 'Basic YzMwNTEwYzg4Yjc0NGJmNmI5ZTQyN2UwZTlmMmZhOTA6ZjhkMTM2NGUzMmI5NDc5YzhlMWRmOTMzOGJiNDdlMmQ='
 }
-const tempToken = "007eJxTYNji0SXfcvCLQ/CGST/SRQVrfKa/+GJ0con9BtvXcUk3hH4oMFiYJaZaJBmkJCabGZuYJZlZGlkamRgmmloaGxoamCcbMUfkJTcEMjI84qljZGSAQBCfhaEktbiEgQEAeRsfPQ=="
 interface Props {
 
 }
@@ -68,8 +67,8 @@ export default class App extends Component<Props, State> {
         this.state = {
             appId: '486078f000b4436ca2e298cae2f13422',
             channelName: 'test',
-            //token: '007eJxTYGg98d8vcFPqkYIJyQ1v9u+6o2T/dUfLhqZ9frwiLzZrXoxUYDCxMDMwt0gzMDBIMjExNktONEo1srRITkw1SjM0NjEy2vejNLkhkJEhKiWQmZEBAkF8FoaS1OISBgYA9TMhOw==',
-            token: "007eJxTYMgQe9ks9yv9XIr99g6Jee/bWFw/Xp4X3+nEdejFnPtCdwwUGEwszAzMLdIMDAySTEyMzZITjVKNLC2SE1ON0gyNTYyM7m2pSW4IZGRQk+ZjZWSAQBCfhaEktbiEgQEAXRYe/Q==",
+            token: '006486078f000b4436ca2e298cae2f13422IAA6BRhvXWckDSnd/Ofbd6okfuoGlCuAtcSWche4HVKLlgx+f9gh39v0IgBW14BTN6udYwQAAQA3TqBjAgA3TqBjAwA3TqBjBAA3TqBj',
+            // token: "0068fbd289aba0b41828fa7cf5ef0060e31IABmgwNg3cvDHfo/VfYZmq9xHzKVSQ0sYkJq9uVTqDoJVAx+f9gh39v0IgAU/Kzy4BqbYwQAAQBw15ljAgBw15ljAwBw15ljBABw15lj",
             joinSucceed: false,
             peerIds: [],
             resourceId: '',
@@ -153,6 +152,8 @@ export default class App extends Component<Props, State> {
 
     startCall = async () => {
         await this._engine?.joinChannel(this.state.token, this.state.channelName, null, 0)
+        console.log("start call---------------------");
+        
         setTimeout(() => {
              this.agoraSavedvideoApi()
         }, 3000);
@@ -199,20 +200,7 @@ export default class App extends Component<Props, State> {
         }
     }
     //@ts-ignore
-    getSelectedDayEvents = date => {
-        console.log('--------', date);
-        let markedDates = {};
-        //@ts-ignore
-        markedDates[date] = { startingDay: true, color: 'lightgreen', endingDay: true };
-        let serviceDate = moment(date);
-        //@ts-ignore
-
-        serviceDate = serviceDate.format("DD.MM.YYYY");
-        this.setState({
-            selectedDate: serviceDate,
-            markedDates: markedDates
-        });
-    };
+    
 
     render() {
         console.log(this.state.startDate, this.state.endDate);
